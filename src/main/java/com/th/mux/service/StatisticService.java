@@ -1,6 +1,7 @@
 package com.th.mux.service;
 
 import com.th.mux.dto.StatisticDto;
+import com.th.mux.dto.TimePeriodDto;
 import com.th.mux.mapper.StatisticMapper;
 import com.th.mux.model.Statistic;
 import com.th.mux.model.User;
@@ -12,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -51,5 +54,29 @@ public class StatisticService {
         }
         Statistic saved = statisticRepository.save(statistic);
         return StatisticMapper.toDto(saved);
+    }
+
+    /**
+     *
+     * @param userId
+     * @return
+     */
+    public List<StatisticDto> getStatistics(long userId) {
+        Optional<List<Statistic>> listOptional = statisticRepository.findByUserId(userId);
+        return listOptional.map(statistics -> statistics.stream().map(StatisticMapper::toDto)
+                .collect(Collectors.toList())).orElse(null);
+    }
+
+    /**
+     *
+     * @param userId
+     * @param timePeriodDto
+     * @return
+     */
+    public List<StatisticDto> getStatistics(long userId, TimePeriodDto timePeriodDto) {
+        Optional<List<Statistic>> listOptional = statisticRepository.findByUserIdAndTimePeriod(userId,
+                timePeriodDto.getFromDate(), timePeriodDto.getToDate());
+        return listOptional.map(statistics -> statistics.stream().map(StatisticMapper::toDto)
+                .collect(Collectors.toList())).orElse(null);
     }
 }

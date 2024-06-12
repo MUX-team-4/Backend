@@ -1,6 +1,7 @@
 package com.th.mux.controller;
 
 import com.th.mux.dto.StatisticDto;
+import com.th.mux.dto.TimePeriodDto;
 import com.th.mux.model.Statistic;
 import com.th.mux.service.RankingService;
 import com.th.mux.service.StatisticService;
@@ -31,13 +32,23 @@ public class StatisticController {
      * @return
      */
     @GetMapping("/{id}")
-    public ResponseEntity<List<Statistic>> getStatistics(@RequestParam int userId) {
-        return null;
+    public ResponseEntity<List<StatisticDto>> getStatistics(@PathVariable(name = "id") long userId) {
+        return ResponseEntity.ok(statisticService.getStatistics(userId));
+    }
+
+    /**
+     * Get all statistics of a user
+     * @param userId
+     * @return
+     */
+    @GetMapping("/{id}/zeitraum")
+    public ResponseEntity<List<StatisticDto>> getStatistics(@PathVariable(name = "id") long userId, @RequestBody TimePeriodDto timePeriodDto) {
+        return ResponseEntity.ok(statisticService.getStatistics(userId, timePeriodDto));
     }
 
 
     @GetMapping("/aktueller-monat/{id}")
-    public ResponseEntity<List<StatisticDto>> getStatisticsByCurrentMonth(@RequestParam int userId) {
+    public ResponseEntity<List<StatisticDto>> getStatisticsByCurrentMonth(@PathVariable(name = "id") int userId) {
         return null;
     }
 
