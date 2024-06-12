@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.Optional;
 
 @Repository
-public interface StatisticRepository extends JpaRepository<Statistic, Integer> {
+public interface StatisticRepository extends JpaRepository<Statistic, Long> {
    //@Query("SELECT s FROM Statistic s WHERE s.user = ?1 AND s.date = ?2")
    @Query("SELECT s FROM Statistic s WHERE s.user = ?1 AND s.date = ?2")
     Optional<Statistic> findByIdAndDate(User user, LocalDate date);

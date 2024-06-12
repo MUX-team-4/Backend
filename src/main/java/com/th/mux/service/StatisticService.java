@@ -9,11 +9,14 @@ import com.th.mux.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 @Slf4j
+@Transactional(isolation = Isolation.SERIALIZABLE)
 public class StatisticService {
     private final StatisticRepository statisticRepository;
     private final UserRepository userRepository;
@@ -25,7 +28,9 @@ public class StatisticService {
     }
 
 
+    @Transactional
     public StatisticDto updateStatistic(StatisticDto dto) {
+        // can find by email
         Optional<User> userOptional = userRepository.findById(dto.getUserId());
         Optional<Statistic> statisticOp = statisticRepository.findByIdAndDate(userOptional.get(), dto.getDate());
         //Optional<Statistic> statisticOp = statisticRepository.findById(dto.getId());
@@ -34,7 +39,7 @@ public class StatisticService {
         if (statisticOp.isPresent()) {
             // update value
             statistic = statisticOp.get();
-            statistic.setSteps(dto.getSteps());
+            statistic.setSteps(dto.getSteps() + statisticOp.get().getSteps());
             statistic.setDistance(dto.getDistance());
         } else {
             // insert value
@@ -46,6 +51,5 @@ public class StatisticService {
         }
         Statistic saved = statisticRepository.save(statistic);
         return StatisticMapper.toDto(saved);
-
     }
 }

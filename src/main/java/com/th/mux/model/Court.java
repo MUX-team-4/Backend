@@ -13,7 +13,7 @@ import java.util.List;
 public class Court {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
     @Column(nullable = false, length = 50)
     private String name;
     @OneToMany(mappedBy = "court", cascade = CascadeType.ALL)

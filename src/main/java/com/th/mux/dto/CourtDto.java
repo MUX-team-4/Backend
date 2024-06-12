@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Data
 @AllArgsConstructor
 public class CourtDto {
-    private int id;
+    private long id;
     private String name;
 
 }

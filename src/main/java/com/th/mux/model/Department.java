@@ -13,14 +13,14 @@ import java.util.List;
 public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
     @Column(nullable = false, length = 50)
     private String name;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gericht_id", nullable = false) //foreign key
     private Court court;
-    @OneToOne(mappedBy = "department", cascade = CascadeType.ALL)
-    private Ranking ranking;
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
+    private List<Ranking> ranking;
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
     private List<User> users;
 }

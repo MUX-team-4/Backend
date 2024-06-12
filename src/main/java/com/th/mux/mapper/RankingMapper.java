@@ -10,7 +10,7 @@ public class RankingMapper {
         if (ranking == null) {
             return null;
         }
-        return new RankingDto(ranking.getId(), ranking.getDepartment().getId(), ranking.getSteps(),
+        return new RankingDto(ranking.getId(), ranking.getDepartment().getId(), ranking.getDepartment().getName(), ranking.getSteps(),
                 ranking.getDate());
     }
 }

@@ -15,11 +15,11 @@ import java.util.Date;
 public class Statistic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
     @Column(name = "datum", nullable = false)
     private LocalDate date;
     @Column(name = "schritte")
-    private int steps;
+    private long steps;
     //private double kcal;
     @Column(name = "strecke")
     private double distance;

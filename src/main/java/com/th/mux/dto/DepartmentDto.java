@@ -8,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 @Data
 @AllArgsConstructor
 public class DepartmentDto {
-    private int id;
+    private long id;
     private String name;
     @JsonProperty("gericht_id")
-    private int courtId;
+    private long courtId;
 
 }

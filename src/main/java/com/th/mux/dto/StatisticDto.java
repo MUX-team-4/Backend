@@ -8,13 +8,13 @@ import java.util.Date;
 
 @Data
 public class StatisticDto {
-    private int id;
+    private long id;
     @JsonProperty("mitarbeiter_id")
-    private int userId;
+    private long userId;
     @JsonProperty("datum")
     private LocalDate date;
     @JsonProperty("schritte")
-    private int steps;
+    private long steps;
     @JsonProperty("strecke")
     private double distance;
 }

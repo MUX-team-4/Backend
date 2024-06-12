@@ -1,6 +1,7 @@
 package com.th.mux.controller;
 
 import com.th.mux.dto.RankingDto;
+import com.th.mux.dto.TimePeriodDto;
 import com.th.mux.mapper.RankingMapper;
 import com.th.mux.service.RankingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,20 +22,24 @@ public class RankingController {
     }
 
     /**
-     * Get all ranking
+     * Get rankings group by department
      * @return
      */
     @GetMapping()
-    ResponseEntity<List<RankingDto>> getRanking() {
-        return ResponseEntity.ok(rankingService.getRankings().stream().map(RankingMapper::toDto)
-                .collect(Collectors.toList()));
+    ResponseEntity<List<RankingDto>> getRankingsGroupByDepartment() {
+        return ResponseEntity.ok(rankingService.getRankingsGroupByDepartment());
+    }
+
+    @GetMapping("/zeitraum")
+    ResponseEntity<List<RankingDto>> getRankingsGroupByDepartment(@RequestBody TimePeriodDto timePeriodDto) {
+        return ResponseEntity.ok(rankingService.getRankingsGroupByDepartment(timePeriodDto));
     }
 
     /**
      * Get all ranking in current month
      * @return
      */
-    @GetMapping("/current-month")
+    @GetMapping("/aktueller-monat")
     ResponseEntity<List<RankingDto>> getRankingByCurrentMonth() {
         return ResponseEntity.ok(rankingService.getRankings().stream().map(RankingMapper::toDto)
                 .collect(Collectors.toList()));

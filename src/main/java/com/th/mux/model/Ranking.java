@@ -13,13 +13,14 @@ import java.time.LocalDate;
 public class Ranking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
     @Column(name = "datum", nullable = false)
     private LocalDate date;
     @Column(name = "gesamt")
     // total steps
-    private int steps;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "dienstelle_id", referencedColumnName = "id", nullable = false) // onetoone
+    private long steps;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dienstelle_id", nullable = false) //foreign key
+    //@JoinColumn(name = "dienstelle_id", referencedColumnName = "id", nullable = false)
     private Department department;
 }
