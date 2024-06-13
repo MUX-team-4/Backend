@@ -6,11 +6,14 @@ import com.th.mux.model.Department;
 import com.th.mux.repository.DepartmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(isolation = Isolation.SERIALIZABLE)
 public class DepartmentService {
     private final DepartmentRepository departmentRepository;
 

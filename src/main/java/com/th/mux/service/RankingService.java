@@ -104,4 +104,12 @@ public class RankingService {
         } else {
             throw  new RuntimeException("User not exist");
         }
-    }}
+    }
+
+    public void updateRankings(List<StatisticDto> statisticDtos) {
+        if (statisticDtos == null) {
+            return;
+        }
+        statisticDtos.forEach(this::updateRanking);
+    }
+}

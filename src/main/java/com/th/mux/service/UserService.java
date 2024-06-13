@@ -6,11 +6,14 @@ import com.th.mux.model.User;
 import com.th.mux.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 @Slf4j
+@Transactional(isolation = Isolation.SERIALIZABLE)
 public class UserService {
     private final UserRepository userRepository;
 

@@ -74,8 +74,10 @@ public class StatisticController {
     }
 
     @PutMapping("/zeitraum")
-    public ResponseEntity<List<PeriodStatisticDto>> updateStatistic() {
-        return null;
+    public ResponseEntity<List<StatisticDto>> updateStatistic(@RequestBody PeriodStatisticDto psDto) {
+        List<StatisticDto> savedStatisticDto = statisticService.updateStatistics(psDto);
+        rankingService.updateRankings(savedStatisticDto);
+        return ResponseEntity.ok(savedStatisticDto);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.th.mux.service;
 
+import com.th.mux.dto.PeriodStatisticDto;
 import com.th.mux.dto.StatisticDto;
 import com.th.mux.dto.TimePeriodDto;
 import com.th.mux.mapper.StatisticMapper;
@@ -7,12 +8,15 @@ import com.th.mux.model.Statistic;
 import com.th.mux.model.User;
 import com.th.mux.repository.StatisticRepository;
 import com.th.mux.repository.UserRepository;
+import com.th.mux.util.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -32,7 +36,6 @@ public class StatisticService {
     }
 
 
-    @Transactional
     public StatisticDto updateStatistic(StatisticDto dto) {
         // can find by email
         Optional<User> userOptional = userRepository.findById(dto.getUserId());
@@ -55,6 +58,39 @@ public class StatisticService {
         }
         Statistic saved = statisticRepository.save(statistic);
         return StatisticMapper.toDto(saved);
+    }
+
+    public List<StatisticDto> updateStatistics(PeriodStatisticDto psDto) {
+        // divide into single record of Statistic
+        List<StatisticDto> statisticDtos = new ArrayList<>();
+        List<LocalDate> dateRange = Utils.getDatesBetween(psDto.getFromDate(), psDto.getToDate());
+        long stepsPerDate = psDto.getSteps() / dateRange.size();
+        long restOfSteps = psDto.getSteps() % dateRange.size();
+        log.info("stepsPerDate = {}, restOfSteps = {}", stepsPerDate, restOfSteps);
+        for (int i = 0; i < dateRange.size(); i++) {
+            StatisticDto statisticDto = new StatisticDto();
+            statisticDto.setUserId(psDto.getUserId());
+            statisticDto.setDistance(psDto.getDistance());
+            statisticDto.setDate(dateRange.get(i));
+            // check last item
+            if (i == dateRange.size() - 1) {
+                log.info("is last item");
+                statisticDto.setSteps(stepsPerDate + restOfSteps);
+            } else {
+                statisticDto.setSteps(stepsPerDate);
+            }
+            statisticDtos.add(statisticDto);
+        }
+        List<StatisticDto> savedDtos = new ArrayList<>();
+        // insert to statistic database
+        statisticDtos.forEach(item -> {
+            StatisticDto savedDto = updateStatistic(item);
+            savedDtos.add(savedDto);
+        });
+//        statisticDtos.forEach(item -> {
+//            log.info("item: date={}, steps={}", item.getSteps(), item.getSteps());
+//        });
+        return savedDtos;
     }
 
     /**
