@@ -26,6 +26,17 @@ public class StatisticController {
         this.rankingService = rankingService;
     }
 
+    @GetMapping()
+    public ResponseEntity<List<StatisticDto>> getStatisticsGroupByDepartment(@RequestParam("dienstelle_id") long departmentId) {
+        return ResponseEntity.ok(statisticService.getStatisticsGroupByDepartment(departmentId));
+    }
+
+    @GetMapping("/zeitraum")
+    public ResponseEntity<List<StatisticDto>> getStatisticsGroupByDepartment(@RequestParam("dienstelle_id") long departmentId,
+                                                                             @RequestBody TimePeriodDto timePeriodDto) {
+        return ResponseEntity.ok(statisticService.getStatisticGroupByUserAndTimePeriod(departmentId, timePeriodDto));
+    }
+
     /**
      * Get all statistics of a user
      * @param userId

@@ -6,6 +6,7 @@ import com.th.mux.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,5 +25,9 @@ public class DepartmentController {
     @GetMapping
     public ResponseEntity<List<DepartmentDto>> getDepartment() {
         return ResponseEntity.ok(departmentService.getDepartments());
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<DepartmentDto> getDepartment(@PathVariable(name = "id") long departmentId) {
+        return ResponseEntity.ok(departmentService.getDepartment(departmentId));
     }
 }

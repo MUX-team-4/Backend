@@ -47,26 +47,26 @@ public class RankingService {
      */
     public List<RankingDto> getRankingsGroupByDepartment() {
         //(r1, r2)  ->  Integer.compare(r1.getSteps(), r2.getSteps())
-        return rankingRepository.getRankings().stream()
-                .map(objects -> {
-                    long departmentId = (long) objects[0];
+        return rankingRepository.getRankings().map(items -> items.stream()
+                .map(item -> {
+                    long departmentId = (long) item[0];
                     Department department = departmentRepository.findById(departmentId).get();
-                    long steps = (long) objects[1];
+                    long steps = (long) item[1];
                     return new RankingDto(0, department.getId(), department.getName(), steps, null);
                 })
                 .sorted(Comparator.comparingLong(RankingDto::getSteps).reversed())
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())).orElse(null);
     }
 
     public List<RankingDto> getRankingsGroupByDepartment(TimePeriodDto timePeriodDto) {
-        return rankingRepository.getRankingsByTimePeriod(timePeriodDto.getFromDate(), timePeriodDto.getToDate()).stream()
-                .map(objects -> {
-                    long departmentId = (long) objects[0];
+        return rankingRepository.getRankingsByTimePeriod(timePeriodDto.getFromDate(), timePeriodDto.getToDate()).map(items -> items.stream()
+                .map(item -> {
+                    long departmentId = (long) item[0];
                     Department department = departmentRepository.findById(departmentId).get();
-                    long steps = (long) objects[1];
+                    long steps = (long) item[1];
                     return new RankingDto(0, department.getId(), department.getName(), steps, null);
                 }).sorted(Comparator.comparingLong(RankingDto::getSteps).reversed())
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())).orElse(null);
     }
 
     /**

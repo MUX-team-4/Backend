@@ -18,9 +18,9 @@ public interface RankingRepository extends JpaRepository<Ranking, Long> {
      * Object[0] = department.id, Object[1] = steps;
      */
     @Query("SELECT r.department.id, sum(r.steps) FROM Ranking r GROUP BY r.department.id")
-    public List<Object[]> getRankings();
+    public Optional<List<Object[]>> getRankings();
     @Query("SELECT r.department.id, sum(r.steps) FROM Ranking r WHERE r.date BETWEEN ?1 AND ?2 GROUP BY r.department.id")
-    public List<Object[]> getRankingsByTimePeriod(LocalDate fromDate, LocalDate toDate);
+    public Optional<List<Object[]>> getRankingsByTimePeriod(LocalDate fromDate, LocalDate toDate);
     @Query("SELECT r FROM Ranking r WHERE r.department = ?1 AND r.date = ?2")
     public Optional<Ranking> findRankingByIdAndDate(Department department, LocalDate date);
 

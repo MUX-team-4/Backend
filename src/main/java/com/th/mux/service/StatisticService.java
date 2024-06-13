@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -77,6 +78,36 @@ public class StatisticService {
         Optional<List<Statistic>> listOptional = statisticRepository.findByUserIdAndTimePeriod(userId,
                 timePeriodDto.getFromDate(), timePeriodDto.getToDate());
         return listOptional.map(statistics -> statistics.stream().map(StatisticMapper::toDto)
+                .collect(Collectors.toList())).orElse(null);
+    }
+
+//    public List<StatisticDto> getStatisticsGroupByDepartment(long departmentId) {
+//        return statisticRepository.findAll().stream().filter(statistic -> statistic.getUser().getDepartment().getId() == departmentId)
+//                .map(StatisticMapper::toDto)
+//                .collect(Collectors.toList());
+//    }
+
+    // for ranking of users in a department
+    public List<StatisticDto> getStatisticsGroupByDepartment(long departmentId) {
+        Optional<List<Object[]>> objectsOp = statisticRepository.getStatisticGroupByUser();
+        return getStatisticDtos(departmentId, objectsOp);
+    }
+
+    public List<StatisticDto> getStatisticGroupByUserAndTimePeriod(long departmentId, TimePeriodDto timePeriodDto) {
+        Optional<List<Object[]>> objectsOp = statisticRepository.getStatisticGroupByUserAndTimePeriod(timePeriodDto.getFromDate(), timePeriodDto.getToDate());
+        return getStatisticDtos(departmentId, objectsOp);
+    }
+
+    private List<StatisticDto> getStatisticDtos(long departmentId, Optional<List<Object[]>> objectsOp) {
+        return objectsOp.map(objects -> objects.stream()
+                .filter(item -> userRepository.findById((long) item[0]).get().getDepartment().getId() == departmentId)
+                .map(item -> {
+                    long userId = (long) item[0];
+                    long steps = (long) item[1];
+                    double distance = (double) item[2];
+                    return new StatisticDto(0, userId, steps, distance, null);
+                })
+                .sorted(Comparator.comparingLong(StatisticDto::getSteps).reversed())
                 .collect(Collectors.toList())).orElse(null);
     }
 }

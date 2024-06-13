@@ -23,4 +23,8 @@ public class DepartmentService {
         return departmentRepository.findAll().stream().map(DepartmentMapper::toDto)
                 .collect(Collectors.toList());
     }
+
+    public DepartmentDto getDepartment(long departmentId) {
+        return departmentRepository.findById(departmentId).map(DepartmentMapper::toDto).orElse(null);
+    }
 }
