@@ -1,5 +1,6 @@
 package com.th.mux.controller;
 
+import com.th.mux.dto.PeriodStatisticDto;
 import com.th.mux.dto.StatisticDto;
 import com.th.mux.dto.TimePeriodDto;
 import com.th.mux.model.Statistic;
@@ -26,13 +27,13 @@ public class StatisticController {
         this.rankingService = rankingService;
     }
 
-    @GetMapping()
-    public ResponseEntity<List<StatisticDto>> getStatisticsGroupByDepartment(@RequestParam("dienstelle_id") long departmentId) {
+    @GetMapping("/dienstellen/{id}")
+    public ResponseEntity<List<StatisticDto>> getStatisticsGroupByDepartment(@PathVariable(name = "id") long departmentId) {
         return ResponseEntity.ok(statisticService.getStatisticsGroupByDepartment(departmentId));
     }
 
-    @GetMapping("/zeitraum")
-    public ResponseEntity<List<StatisticDto>> getStatisticsGroupByDepartment(@RequestParam("dienstelle_id") long departmentId,
+    @GetMapping("/dienstellen/{id}/zeitraum")
+    public ResponseEntity<List<StatisticDto>> getStatisticsGroupByDepartment(@PathVariable(name = "id") long departmentId,
                                                                              @RequestBody TimePeriodDto timePeriodDto) {
         return ResponseEntity.ok(statisticService.getStatisticGroupByUserAndTimePeriod(departmentId, timePeriodDto));
     }
@@ -70,6 +71,11 @@ public class StatisticController {
         boolean resultUpdate = rankingService.updateRanking(savedStatisticDto);
         log.info("resultUpdate for Ranking = {}", resultUpdate);
         return ResponseEntity.ok(savedStatisticDto);
+    }
+
+    @PutMapping("/zeitraum")
+    public ResponseEntity<List<PeriodStatisticDto>> updateStatistic() {
+        return null;
     }
 
 }
