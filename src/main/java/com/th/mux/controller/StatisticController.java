@@ -68,15 +68,17 @@ public class StatisticController {
     public ResponseEntity<StatisticDto> updateStatistic(@RequestBody StatisticDto dto) {
         log.info("input value StatisticDto = {}", dto);
         StatisticDto savedStatisticDto = statisticService.updateStatistic(dto);
-        boolean resultUpdate = rankingService.updateRanking(savedStatisticDto);
+        boolean resultUpdate = rankingService.updateRanking(dto);
         log.info("resultUpdate for Ranking = {}", resultUpdate);
         return ResponseEntity.ok(savedStatisticDto);
     }
 
     @PutMapping("/zeitraum")
     public ResponseEntity<List<StatisticDto>> updateStatistic(@RequestBody PeriodStatisticDto psDto) {
-        List<StatisticDto> savedStatisticDto = statisticService.updateStatistics(psDto);
-        rankingService.updateRankings(savedStatisticDto);
+        // divide into single record of Statistic
+        List<StatisticDto> statisticDtos = StatisticService.getStatisticDtosFromPeriod(psDto);
+        List<StatisticDto> savedStatisticDto = statisticService.updateStatistics(statisticDtos);
+        rankingService.updateRankings(statisticDtos);
         return ResponseEntity.ok(savedStatisticDto);
     }
 

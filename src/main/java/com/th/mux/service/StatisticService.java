@@ -60,8 +60,20 @@ public class StatisticService {
         return StatisticMapper.toDto(saved);
     }
 
-    public List<StatisticDto> updateStatistics(PeriodStatisticDto psDto) {
-        // divide into single record of Statistic
+    public List<StatisticDto> updateStatistics(List<StatisticDto> statisticDtos) {
+        List<StatisticDto> savedDtos = new ArrayList<>();
+        // insert to statistic database
+        statisticDtos.forEach(item -> {
+            StatisticDto savedDto = updateStatistic(item);
+            savedDtos.add(savedDto);
+        });
+//        statisticDtos.forEach(item -> {
+//            log.info("item: date={}, steps={}", item.getSteps(), item.getSteps());
+//        });
+        return savedDtos;
+    }
+
+    public static List<StatisticDto> getStatisticDtosFromPeriod(PeriodStatisticDto psDto) {
         List<StatisticDto> statisticDtos = new ArrayList<>();
         List<LocalDate> dateRange = Utils.getDatesBetween(psDto.getFromDate(), psDto.getToDate());
         long stepsPerDate = psDto.getSteps() / dateRange.size();
@@ -81,16 +93,7 @@ public class StatisticService {
             }
             statisticDtos.add(statisticDto);
         }
-        List<StatisticDto> savedDtos = new ArrayList<>();
-        // insert to statistic database
-        statisticDtos.forEach(item -> {
-            StatisticDto savedDto = updateStatistic(item);
-            savedDtos.add(savedDto);
-        });
-//        statisticDtos.forEach(item -> {
-//            log.info("item: date={}, steps={}", item.getSteps(), item.getSteps());
-//        });
-        return savedDtos;
+        return statisticDtos;
     }
 
     /**
