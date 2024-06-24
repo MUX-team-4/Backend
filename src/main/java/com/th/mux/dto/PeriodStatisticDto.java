@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class PeriodStatisticDto {
     @JsonProperty("mitarbeiter_id")
-
     private long userId;
     @JsonProperty("schritte")
     private long steps;
