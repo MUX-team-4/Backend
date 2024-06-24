@@ -7,14 +7,14 @@ public class CourtMapper {
 
     public static CourtDto toDto(Court court) {
         if (court == null) {
-            return null;
+            throw new RuntimeException("Input is invalid");
         }
         return new CourtDto(court.getId(), court.getName());
     }
 
     public static Court toCourt(CourtDto courtDto) {
         if (courtDto == null) {
-            return null;
+            throw new RuntimeException("Input is invalid");
         }
         Court court = new Court();
         court.setId(courtDto.getId());

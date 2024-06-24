@@ -6,7 +6,7 @@ import com.th.mux.model.Statistic;
 public class StatisticMapper {
     public static StatisticDto toDto(Statistic statistic) {
         if (statistic == null) {
-            return null;
+            throw new RuntimeException("Input is invalid");
         }
         StatisticDto dto = new StatisticDto();
         dto.setId(statistic.getId());

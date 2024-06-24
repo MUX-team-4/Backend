@@ -59,10 +59,10 @@ public class StatisticController {
     }
 
 
-    @GetMapping("/aktueller-monat/{id}")
-    public ResponseEntity<List<StatisticDto>> getStatisticsByCurrentMonth(@PathVariable(name = "id") int userId) {
-        return null;
-    }
+//    @GetMapping("/aktueller-monat/{id}")
+//    public ResponseEntity<List<StatisticDto>> getStatisticsByCurrentMonth(@PathVariable(name = "id") int userId) {
+//        return null;
+//    }
 
     @PutMapping()
     public ResponseEntity<StatisticDto> updateStatistic(@RequestBody StatisticDto dto) {

@@ -39,10 +39,10 @@ public class RankingController {
      * Get all ranking in current month
      * @return
      */
-    @GetMapping("/aktueller-monat")
-    ResponseEntity<List<RankingDto>> getRankingByCurrentMonth() {
-        return ResponseEntity.ok(rankingService.getRankings().stream().map(RankingMapper::toDto)
-                .collect(Collectors.toList()));
-    }
+//    @GetMapping("/aktueller-monat")
+//    ResponseEntity<List<RankingDto>> getRankingByCurrentMonth() {
+//        return ResponseEntity.ok(rankingService.getRankings().stream().map(RankingMapper::toDto)
+//                .collect(Collectors.toList()));
+//    }
 
 }

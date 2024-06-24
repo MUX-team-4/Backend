@@ -6,7 +6,7 @@ import com.th.mux.model.Profile;
 public class ProfileMapper {
     public static ProfileDto toDto(Profile profile) {
         if (profile == null) {
-            return null;
+            throw new RuntimeException("Input is invalid");
         }
         return new ProfileDto(profile.getDailyGoal(), profile.getHeight(), profile.getStepLength());
     }
