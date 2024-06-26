@@ -1,6 +1,7 @@
 package com.th.mux.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.th.mux.model.Trend;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -24,4 +25,7 @@ public class RankingDto {
     // record by date
     @JsonProperty("datum")
     private LocalDate date;
+    // trend: compare position at Ranking between current day and yesterday
+    @JsonProperty("trend")
+    private Trend trend;
 }

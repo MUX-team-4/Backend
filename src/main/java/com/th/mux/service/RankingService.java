@@ -5,17 +5,19 @@ import com.th.mux.dto.StatisticDto;
 import com.th.mux.dto.TimePeriodDto;
 import com.th.mux.model.Department;
 import com.th.mux.model.Ranking;
+import com.th.mux.model.Trend;
 import com.th.mux.model.User;
 import com.th.mux.repository.DepartmentRepository;
 import com.th.mux.repository.RankingRepository;
 import com.th.mux.repository.UserRepository;
+import com.th.mux.util.Constant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,38 +37,78 @@ public class RankingService {
         this.userRepository = userRepository;
     }
 
-    public List<Ranking> getRankings() {
-        //(r1, r2)  ->  Integer.compare(r1.getSteps(), r2.getSteps())
-        return rankingRepository.findAll().stream().sorted(Comparator.comparingLong(Ranking::getSteps))
-                .collect(Collectors.toList());
-    }
-
     /**
-     * For total tab
+     * For total tab (gesamt)
      * @return
      */
     public List<RankingDto> getRankingsGroupByDepartment() {
         //(r1, r2)  ->  Integer.compare(r1.getSteps(), r2.getSteps())
-        return rankingRepository.getRankings().map(items -> items.stream()
-                .map(item -> {
-                    long departmentId = (long) item[0];
-                    Department department = departmentRepository.findById(departmentId).get();
-                    long steps = (long) item[1];
-                    return new RankingDto(0, department.getId(), department.getName(), steps, null);
-                })
-                .sorted(Comparator.comparingLong(RankingDto::getSteps).reversed())
-                .collect(Collectors.toList())).orElse(null);
+        List<RankingDto> rankingIncludeToday = convertToRankingDtos(rankingRepository.getRankings());
+        List<RankingDto> rankingExcludeToday = convertToRankingDtos(rankingRepository.getRankingsExcludeToday());
+        return calculateTrend(rankingIncludeToday, rankingExcludeToday);
+
     }
 
     public List<RankingDto> getRankingsGroupByDepartment(TimePeriodDto timePeriodDto) {
-        return rankingRepository.getRankingsByTimePeriod(timePeriodDto.getFromDate(), timePeriodDto.getToDate()).map(items -> items.stream()
+        List<RankingDto> rankingIncludeToday = convertToRankingDtos(rankingRepository.getRankingsByTimePeriod(timePeriodDto.getFromDate(), timePeriodDto.getToDate()));
+        List<RankingDto> rankingExcludeToday = convertToRankingDtos(rankingRepository.getRankingsByTimePeriod(timePeriodDto.getFromDate(), LocalDate.now()));
+        return calculateTrend(rankingIncludeToday, rankingExcludeToday);
+    }
+
+    /**
+     * Caculate Trend based on today list and yesterday list
+     * @param rankingIncludeToday
+     * @param rankingExcludeToday
+     * @return
+     */
+    private List<RankingDto> calculateTrend(List<RankingDto> rankingIncludeToday, List<RankingDto> rankingExcludeToday) {
+        if (rankingIncludeToday == null || rankingIncludeToday.isEmpty()) {
+            log.info("rankingIncludeToday == null || rankingIncludeToday.isEmpty()");
+            return null;
+        }
+        if (rankingExcludeToday == null || rankingExcludeToday.isEmpty()) {
+            log.info("rankingExcludeToday == null || rankingExcludeToday.isEmpty()");
+            // no information for yesterday -> Trend = Improved
+            rankingIncludeToday.forEach(item -> item.setTrend(Trend.VERBESSERT));
+            return rankingIncludeToday;
+        }
+        for (int i = 0; i < rankingIncludeToday.size(); i++) {
+            int indexFound = rankingExcludeToday.indexOf(rankingIncludeToday.get(i));
+            Trend trend;
+            if (indexFound != Constant.NOT_FOUND_INDEX) {
+                log.info("index in include ={}, found index in prev={}", i, indexFound);
+                if (i > indexFound ) {
+                    // worse
+                    trend = Trend.VERSCHLECHTERT;
+                } else if (i == indexFound) {
+                    trend = Trend.GLEICH;
+                } else {
+                    trend = Trend.VERBESSERT;
+                }
+            } else {
+                // default is improved
+                trend = Trend.VERBESSERT;
+            }
+            rankingIncludeToday.get(i).setTrend(trend);
+        }
+        return rankingIncludeToday;
+    }
+
+    /**
+     * Formatted Objects to Ranking data transfer objects
+     * @param objects
+     * @return
+     */
+    private List<RankingDto> convertToRankingDtos(Optional<List<Object[]>> objects) {
+        return objects.map(items -> items.stream()
                 .map(item -> {
-                    long departmentId = (long) item[0];
-                    Department department = departmentRepository.findById(departmentId).get();
+                    Department department = (Department) item[0];
+                    //log.info("department={}", department.getName());
+                    //Department department = departmentRepository.findById(departmentId).get();
                     long steps = (long) item[1];
-                    return new RankingDto(0, department.getId(), department.getName(), steps, null);
-                }).sorted(Comparator.comparingLong(RankingDto::getSteps).reversed())
-                .collect(Collectors.toList())).orElse(null);
+                    return new RankingDto(Constant.NO_ID, department.getId(), department.getName(), steps, null, null);
+                }).collect(Collectors.toList())).orElse(null);
+        //.sorted(Comparator.comparingLong(RankingDto::getSteps).reversed())
     }
 
     /**
@@ -106,6 +148,10 @@ public class RankingService {
         }
     }
 
+    /**
+     * Update Ranking tabelle in database
+     * @param statisticDtos
+     */
     public void updateRankings(List<StatisticDto> statisticDtos) {
         if (statisticDtos == null) {
             return;

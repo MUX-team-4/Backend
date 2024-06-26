@@ -8,9 +8,9 @@ import com.th.mux.model.Ranking;
 public class RankingMapper {
     public static RankingDto toDto(Ranking ranking) {
         if (ranking == null) {
-            return null;
+            throw new RuntimeException("Input is invalid");
         }
         return new RankingDto(ranking.getId(), ranking.getDepartment().getId(), ranking.getDepartment().getName(), ranking.getSteps(),
-                ranking.getDate());
+                ranking.getDate(), null);
     }
 }
