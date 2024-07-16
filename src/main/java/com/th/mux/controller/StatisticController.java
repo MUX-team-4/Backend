@@ -32,7 +32,7 @@ public class StatisticController {
         return ResponseEntity.ok(statisticService.getStatisticsGroupByDepartment(departmentId));
     }
 
-    @GetMapping("/dienstellen/{id}/zeitraum")
+    @PostMapping("/dienstellen/{id}/zeitraum")
     public ResponseEntity<List<StatisticDto>> getStatisticsGroupByDepartment(@PathVariable(name = "id") long departmentId,
                                                                              @RequestBody TimePeriodDto timePeriodDto) {
         return ResponseEntity.ok(statisticService.getStatisticGroupByUserAndTimePeriod(departmentId, timePeriodDto));
@@ -53,7 +53,7 @@ public class StatisticController {
      * @param userId
      * @return
      */
-    @GetMapping("/{id}/zeitraum")
+    @PostMapping("/{id}/zeitraum")
     public ResponseEntity<List<StatisticDto>> getStatistics(@PathVariable(name = "id") long userId, @RequestBody TimePeriodDto timePeriodDto) {
         return ResponseEntity.ok(statisticService.getStatistics(userId, timePeriodDto));
     }

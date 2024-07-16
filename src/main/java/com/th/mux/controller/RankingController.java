@@ -30,7 +30,7 @@ public class RankingController {
         return ResponseEntity.ok(rankingService.getRankingsGroupByDepartment());
     }
 
-    @GetMapping("/zeitraum")
+    @PostMapping("/zeitraum")
     ResponseEntity<List<RankingDto>> getRankingsGroupByDepartment(@RequestBody TimePeriodDto timePeriodDto) {
         return ResponseEntity.ok(rankingService.getRankingsGroupByDepartment(timePeriodDto));
     }
