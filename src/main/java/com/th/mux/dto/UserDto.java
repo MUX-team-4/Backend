@@ -16,4 +16,6 @@ public class UserDto {
     private Role role;
     @JsonProperty("dienstelle_id")
     private long departmentId;
+    @JsonProperty("passwort")
+    private String password;
 }

@@ -18,11 +18,12 @@ public class User {
     private String name;
     @Column(length = 100)
     private String email;
-    //@Column(length = 20)
-    //private String password;
     @Column(name = "rolle", length = 10)
     @Enumerated(EnumType.STRING)
     private Role role;
+    // in database with BCryptPasswordEncoder
+    @Column(name = "passwort", length = 100)
+    private String password;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Statistic> statistics;
     @ManyToOne(fetch = FetchType.LAZY)
