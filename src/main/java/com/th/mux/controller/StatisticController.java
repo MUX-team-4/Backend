@@ -37,6 +37,11 @@ public class StatisticController {
                                                                              @RequestBody TimePeriodDto timePeriodDto) {
         return ResponseEntity.ok(statisticService.getStatisticGroupByUserAndTimePeriod(departmentId, timePeriodDto));
     }
+    @PostMapping("/dienstellen/{id}/zeitraumall")
+    public ResponseEntity<List<StatisticDto>> getStatisticsGroupByDepartmentAll(@PathVariable(name = "id") long departmentId,
+                                                                             @RequestBody TimePeriodDto timePeriodDto) {
+        return ResponseEntity.ok(statisticService.getStatisticGroupByUserAndTimePeriodAll(departmentId, timePeriodDto));
+    }
 
     /**
      * Get all statistics of a user

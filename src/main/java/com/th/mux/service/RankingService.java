@@ -3,12 +3,11 @@ package com.th.mux.service;
 import com.th.mux.dto.RankingDto;
 import com.th.mux.dto.StatisticDto;
 import com.th.mux.dto.TimePeriodDto;
-import com.th.mux.model.Department;
-import com.th.mux.model.Ranking;
-import com.th.mux.model.Trend;
-import com.th.mux.model.User;
+import com.th.mux.dto.TournamentInfoDto;
+import com.th.mux.model.*;
 import com.th.mux.repository.DepartmentRepository;
 import com.th.mux.repository.RankingRepository;
+import com.th.mux.repository.TournamentInfoRepository;
 import com.th.mux.repository.UserRepository;
 import com.th.mux.util.Constant;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,9 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -29,12 +30,14 @@ public class RankingService {
     private final RankingRepository rankingRepository;
     private final DepartmentRepository departmentRepository;
     private final UserRepository userRepository;
+    private final TournamentInfoRepository tournamentInfoRepository;
 
     @Autowired
-    public RankingService(RankingRepository rankingRepository, DepartmentRepository departmentRepository, UserRepository userRepository) {
+    public RankingService(RankingRepository rankingRepository, DepartmentRepository departmentRepository, UserRepository userRepository, TournamentInfoRepository tournamentInfoRepository) {
         this.rankingRepository = rankingRepository;
         this.departmentRepository = departmentRepository;
         this.userRepository = userRepository;
+        this.tournamentInfoRepository = tournamentInfoRepository;
     }
 
     /**
@@ -50,8 +53,24 @@ public class RankingService {
     }
 
     public List<RankingDto> getRankingsGroupByDepartment(TimePeriodDto timePeriodDto) {
+        // here get tournement info for
+        TournamentInfo tourneInfo = tournamentInfoRepository.getLatestTournamentInfo().get();
+
+        System.out.println("vergleich: " + tourneInfo.getDateStart() + "    " + timePeriodDto.getFromDate());
+
+        List<RankingDto> rankingExcludeToday;
         List<RankingDto> rankingIncludeToday = convertToRankingDtos(rankingRepository.getRankingsByTimePeriod(timePeriodDto.getFromDate(), timePeriodDto.getToDate()));
-        List<RankingDto> rankingExcludeToday = convertToRankingDtos(rankingRepository.getRankingsByTimePeriod(timePeriodDto.getFromDate(), LocalDate.now()));
+
+        if (tourneInfo.getDateStart().equals(timePeriodDto.getFromDate())){
+            System.out.println("vergleich TRUE ");
+
+            rankingExcludeToday = convertToRankingDtos(rankingRepository.getRankingsByTimePeriod(timePeriodDto.getFromDate(), LocalDate.now().minusDays(1)));
+
+        }else {
+            System.out.println("vergleich FALSE: " + timePeriodDto.getFromDate() + "    " + timePeriodDto.getToDate());
+
+            rankingExcludeToday = convertToRankingDtos(rankingRepository.getRankingsByTimePeriod(tourneInfo.getDateStart(), timePeriodDto.getFromDate()));
+        }
         return calculateTrend(rankingIncludeToday, rankingExcludeToday);
     }
 
@@ -69,27 +88,43 @@ public class RankingService {
         if (rankingExcludeToday == null || rankingExcludeToday.isEmpty()) {
             log.info("rankingExcludeToday == null || rankingExcludeToday.isEmpty()");
             // no information for yesterday -> Trend = Improved
-            rankingIncludeToday.forEach(item -> item.setTrend(Trend.VERBESSERT));
+            rankingIncludeToday.forEach(item -> item.setTrend(Trend.GLEICH));
             return rankingIncludeToday;
         }
+
         for (int i = 0; i < rankingIncludeToday.size(); i++) {
             int indexFound = rankingExcludeToday.indexOf(rankingIncludeToday.get(i));
+
+
+            int finalI =  i;
+            Optional<RankingDto> matchingObject = rankingExcludeToday.stream().filter(exclude -> exclude.getDepartmentId() == rankingIncludeToday.get(finalI).getDepartmentId() ).findFirst();
+            int positionInclude = i;
+
+            int positionExclude = rankingExcludeToday.indexOf(matchingObject.get());
+
+
+            matchingObject.ifPresent(System.out::println);
+
+
             Trend trend;
-            if (indexFound != Constant.NOT_FOUND_INDEX) {
-                log.info("index in include ={}, found index in prev={}", i, indexFound);
-                if (i > indexFound ) {
-                    // worse
-                    trend = Trend.VERSCHLECHTERT;
-                } else if (i == indexFound) {
-                    trend = Trend.GLEICH;
-                } else {
-                    trend = Trend.VERBESSERT;
-                }
-            } else {
-                // default is improved
+
+            if (positionInclude < positionExclude){
                 trend = Trend.VERBESSERT;
+                rankingIncludeToday.get(i).setTrend(trend);
+            }else if (positionInclude > positionExclude){
+                trend = Trend.VERSCHLECHTERT;
+                rankingIncludeToday.get(i).setTrend(trend);
+            }else {
+                trend = Trend.GLEICH;
+                rankingIncludeToday.get(i).setTrend(trend);
             }
-            rankingIncludeToday.get(i).setTrend(trend);
+            // Logging information
+         /*   System.out.println(rankingIncludeToday.get(i));
+            System.out.println("Index Include: " + rankingIncludeToday.get(i).getDepartmentId());
+            System.out.println("Index Exclude: " + matchingObject.get().getDepartmentId());
+            System.out.println("Position Include: " + positionInclude);
+            System.out.println("Position Exclude: " + positionExclude);
+            System.out.println("Trend: " + trend);*/
         }
         return rankingIncludeToday;
     }

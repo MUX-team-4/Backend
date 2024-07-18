@@ -21,4 +21,7 @@ public class StatisticDto {
     private double distance;
     @JsonProperty("datum")
     private LocalDate date;
+    @JsonProperty("name")
+    private String name;
+
 }

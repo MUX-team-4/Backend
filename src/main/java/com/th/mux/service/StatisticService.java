@@ -144,7 +144,27 @@ public class StatisticService {
                     long userId = (long) item[0];
                     long steps = (long) item[1];
                     double distance = (double) item[2];
-                    return new StatisticDto(0, userId, steps, distance, null);
+                    String name = (String) item[3];
+                    return new StatisticDto(0, userId, steps, distance, null, name);
+                })
+                .sorted(Comparator.comparingLong(StatisticDto::getSteps).reversed())
+                .collect(Collectors.toList())).orElse(null);
+    }
+
+
+    public List<StatisticDto> getStatisticGroupByUserAndTimePeriodAll(long departmentId, TimePeriodDto timePeriodDto) {
+        Optional<List<Object[]>> objectsOp = statisticRepository.getStatisticGroupByUserAndTimePeriod(timePeriodDto.getFromDate(), timePeriodDto.getToDate());
+        return getStatisticDtosAll(departmentId, objectsOp);
+    }
+
+    private List<StatisticDto> getStatisticDtosAll(long departmentId, Optional<List<Object[]>> objectsOp) {
+        return objectsOp.map(objects -> objects.stream()
+                .map(item -> {
+                    long userId = (long) item[0];
+                    long steps = (long) item[1];
+                    double distance = (double) item[2];
+                    String name = (String) item[3];
+                    return new StatisticDto(0, userId, steps, distance, null, name);
                 })
                 .sorted(Comparator.comparingLong(StatisticDto::getSteps).reversed())
                 .collect(Collectors.toList())).orElse(null);

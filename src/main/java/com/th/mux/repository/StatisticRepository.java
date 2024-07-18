@@ -28,6 +28,6 @@ public interface StatisticRepository extends JpaRepository<Statistic, Long> {
 
     @Query("SELECT s.user.id, sum(s.steps), sum(s.distance) FROM Statistic s GROUP BY s.user.id")
    Optional<List<Object[]>>getStatisticGroupByUser();
-    @Query("SELECT s.user.id, sum(s.steps), sum(s.distance) FROM Statistic s WHERE s.date BETWEEN ?1 AND ?2 GROUP BY s.user.id")
+    @Query("SELECT s.user.id, sum(s.steps), sum(s.distance), s.user.name FROM Statistic s WHERE s.date BETWEEN ?1 AND ?2 GROUP BY s.user.id, s.user.name")
     Optional<List<Object[]>>getStatisticGroupByUserAndTimePeriod(LocalDate fromDate, LocalDate toDate);
 }
