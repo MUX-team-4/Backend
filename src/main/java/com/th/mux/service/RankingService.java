@@ -100,15 +100,22 @@ public class RankingService {
             Optional<RankingDto> matchingObject = rankingExcludeToday.stream().filter(exclude -> exclude.getDepartmentId() == rankingIncludeToday.get(finalI).getDepartmentId() ).findFirst();
             int positionInclude = i;
 
-            int positionExclude = rankingExcludeToday.indexOf(matchingObject.get());
+            int positionExclude = -1;
+            if (matchingObject.isPresent()){
+                positionExclude = rankingExcludeToday.indexOf(matchingObject.get());
+            }
+
 
 
             matchingObject.ifPresent(System.out::println);
 
 
             Trend trend;
-
-            if (positionInclude < positionExclude){
+            if(positionExclude == -1){
+                trend = Trend.GLEICH;
+                rankingIncludeToday.get(i).setTrend(trend);
+            }
+            else if (positionInclude < positionExclude){
                 trend = Trend.VERBESSERT;
                 rankingIncludeToday.get(i).setTrend(trend);
             }else if (positionInclude > positionExclude){
